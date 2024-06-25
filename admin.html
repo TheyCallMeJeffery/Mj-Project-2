@@ -1,0 +1,100 @@
+<!-- public/admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quiz Maker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create a Quiz</h1>
+        <form id="createQuizForm">
+            <div id="questionsContainer">
+                <div class="question">
+                    <label for="question">Question:</label>
+                    <input type="text" class="questionInput" name="question" required>
+                    <label for="option1">Option 1:</label>
+                    <input type="text" class="optionInput" name="options" required>
+                    <label for="option2">Option 2:</label>
+                    <input type="text" class="optionInput" name="options" required>
+                    <label for="option3">Option 3:</label>
+                    <input type="text" class="optionInput" name="options" required>
+                    <label for="option4">Option 4:</label>
+                    <input type="text" class="optionInput" name="options" required>
+                    <label for="answer">Answer:</label>
+                    <input type="text" class="answerInput" name="answer" required>
+                </div>
+            </div>
+            <button type="button" id="addQuestionBtn">Add Question</button>
+            <button type="submit">Create Quiz</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('addQuestionBtn').addEventListener('click', () => {
+            const questionsContainer = document.getElementById('questionsContainer');
+            const newQuestionDiv = document.createElement('div');
+            newQuestionDiv.classList.add('question');
+            newQuestionDiv.innerHTML = `
+                <label for="question">Question:</label>
+                <input type="text" class="questionInput" name="question" required>
+                <label for="option1">Option 1:</label>
+                <input type="text" class="optionInput" name="options" required>
+                <label for="option2">Option 2:</label>
+                <input type="text" class="optionInput" name="options" required>
+                <label for="option3">Option 3:</label>
+                <input type="text" class="optionInput" name="options" required>
+                <label for="option4">Option 4:</label>
+                <input type="text" class="optionInput" name="options" required>
+                <label for="answer">Answer:</label>
+                <input type="text" class="answerInput" name="answer" required>
+            `;
+            questionsContainer.appendChild(newQuestionDiv);
+        });
+
+        document.getElementById('createQuizForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const questions = document.querySelectorAll('.question');
+            const quizData = [];
+    
+            questions.forEach(questionDiv => {
+                const question = questionDiv.querySelector('.questionInput').value;
+                const options = [
+                    questionDiv.querySelectorAll('.optionInput')[0].value,
+                    questionDiv.querySelectorAll('.optionInput')[1].value,
+                    questionDiv.querySelectorAll('.optionInput')[2].value,
+                    questionDiv.querySelectorAll('.optionInput')[3].value
+                ];
+                const answer = questionDiv.querySelector('.answerInput').value;
+                quizData.push({ question, options, answer });
+            });
+    
+            try {
+                const token = localStorage.getItem('token'); // Assuming token is stored in localStorage after login
+                const response = await fetch('/api/quiz/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify(quizData)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Quiz created successfully');
+                    document.getElementById('createQuizForm').reset();
+                    window.location.href = 'quiz.html'; // Redirect to quiz page
+                } else {
+                    alert(data.message || 'Failed to create quiz');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create quiz');
+            }
+        });
+    </script>
+    
+</body>
+</html>

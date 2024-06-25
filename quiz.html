@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz</h1>
+        <div id="quiz"></div>
+        <button onclick="submitQuiz()">Submit Quiz</button>
+        <div id="results"></div>
+    </div>
+    
+    <script>
+          async function fetchQuizData() {
+            try {
+                const response = await fetch('/api/quiz');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching quiz data:', error);
+                return [];
+            }
+        }
+        
+        const quizData = [
+            { question: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: "Paris" },
+            { question: "Which language is primarily spoken in Brazil?", options: ["Spanish", "Portuguese", "English", "French"], answer: "Portuguese" },
+            { question: "What is 5 + 7?", options: ["10", "11", "12", "13"], answer: "12" },
+            { question: "Who wrote 'Hamlet'?", options: ["Mark Twain", "William Shakespeare", "Charles Dickens", "J.K. Rowling"], answer: "William Shakespeare" },
+            { question: "What is the largest planet in our solar system?", options: ["Earth", "Mars", "Jupiter", "Saturn"], answer: "Jupiter" },
+            { question: "What is the chemical symbol for gold?", options: ["Au", "Ag", "O2", "Pb"], answer: "Au" },
+            { question: "Which country won the FIFA World Cup in 2018?", options: ["Brazil", "Germany", "France", "Argentina"], answer: "France" },
+            { question: "What is the square root of 64?", options: ["6", "7", "8", "9"], answer: "8" },
+            { question: "Who painted the Mona Lisa?", options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Claude Monet"], answer: "Leonardo da Vinci" },
+            { question: "What is the capital of Japan?", options: ["Seoul", "Tokyo", "Beijing", "Bangkok"], answer: "Tokyo" }
+        ];
+
+        const quizContainer = document.getElementById('quiz');
+        const resultsContainer = document.getElementById('results');
+
+        async function loadQuiz() {
+            const quizData = await fetchQuizData();
+            const output = [];
+
+            quizData.forEach((currentQuestion, questionIndex) => {
+                const options = currentQuestion.options.map(option => `
+                    <li>
+                        <label>
+                            <input type="radio" name="question${questionIndex}" value="${option}">
+                            ${option}
+                        </label>
+                    </li>
+                `).join('');
+
+                output.push(`
+                    <div class="question">${currentQuestion.question}</div>
+                    <ul class="options">${options}</ul>
+                `);
+            });
+
+            quizContainer.innerHTML = output.join('');
+        }
+
+
+        function loadQuiz() {
+            const output = [];
+
+            quizData.forEach((currentQuestion, questionIndex) => {
+                const options = currentQuestion.options.map(option => `
+                    <li>
+                        <label>
+                            <input type="radio" name="question${questionIndex}" value="${option}">
+                            ${option}
+                        </label>
+                    </li>
+                `).join('');
+
+                output.push(`
+                    <div class="question">${currentQuestion.question}</div>
+                    <ul class="options">${options}</ul>
+                `);
+            });
+
+            quizContainer.innerHTML = output.join('');
+        }
+
+        function submitQuiz() {
+            let score = 0;
+
+            quizData.forEach((currentQuestion, questionIndex) => {
+                const selectedOption = document.querySelector(`input[name="question${questionIndex}"]:checked`);
+                if (selectedOption && selectedOption.value === currentQuestion.answer) {
+                    score++;
+                }
+            });
+
+            resultsContainer.innerHTML = `You got ${score} out of ${quizData.length} correct!`;
+        }
+
+        loadQuiz();
+    </script>
+</body>
+</html>
